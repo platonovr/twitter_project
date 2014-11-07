@@ -1,6 +1,7 @@
 <h1>Twitter Feed for user {{ user }}</h1>
 
-
+<p><a href="{% url 'sign_out' %}">Sign out</a></p>
+<p><a href="{% url 'analytics:index' %}">Home</a></p>
 <form action="{% url 'process' %}" method='post'>
     {% csrf_token %}
     <p><textarea name="tweet"></textarea></p>

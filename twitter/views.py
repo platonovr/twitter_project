@@ -3,18 +3,69 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 # Create your views here.
-from django.core.urlresolvers import reverse
-from twitter.models import RawTweet
+from django.core.urlresolvers import reverse, reverse_lazy
+from twitter.forms import LoginForm
+from twitter.models import RawTweet, Tweet
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 
+def no_auth_please(v):
+    def wrapper(request, *a, **k):
+        user = request.user
+        if user.is_authenticated():
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return v(request, *a, **k)
+
+    return wrapper
+
+
+@login_required(login_url=reverse_lazy("sign_in"))
 def index(request):
     return render(request, "twitter/index.html",
-                  {"user": "Huilo", "tweets": RawTweet.objects.all().order_by("-p_date")}
+                  {"user": request.user.username, "tweets": Tweet.objects.filter(user=request.user).order_by("-p_date")}
     )
 
 
 def process(request):
     tweet = request.POST["tweet"]
-    t = RawTweet(text=tweet, p_date=datetime.now())
+    t = Tweet(text=tweet, p_date=timezone.now(), user=request.user)
     t.save()
     return HttpResponseRedirect(reverse('index'))  # args=(book.id,)
+
+
+@no_auth_please
+def sign_in(request):
+    if request.POST:
+        f = LoginForm(request.POST)
+        if f.is_valid():
+            user = authenticate(username=f.cleaned_data["username"], password=f.cleaned_data["password"])
+            if user:
+                login(request, user)
+                if request.GET.has_key("next"):
+                    return HttpResponseRedirect(request.GET["next"])
+                else:
+                    return HttpResponseRedirect(reverse('index'))
+            else:
+                return HttpResponseRedirect(reverse('sign_in'))
+    else:
+        f = LoginForm()
+        context = {"f": f}
+        if request.GET.has_key("next"):
+            context["next"] = request.GET["next"]
+        return render(request, "twitter/sign_in.html", context)
+
+
+@login_required(login_url=reverse_lazy("sign_in"))
+def q(request):
+    return HttpResponse("CLASSIFIED")
+
+
+@login_required
+def sign_out(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("sign_in"))
+
+#  method CreateUser - creating new User object
