@@ -55,7 +55,7 @@ ROOT_URLCONF = 'twitter_project.urls'
 
 WSGI_APPLICATION = 'twitter_project.wsgi.application'
 
-
+LOGIN_URL = '/signin'
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
@@ -82,5 +82,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'twitter/static'),
+)
 
 STATIC_URL = '/static/'

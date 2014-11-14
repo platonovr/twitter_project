@@ -1,14 +1,54 @@
 from datetime import datetime
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 # Create your views here.
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.generic import ListView, FormView
 from twitter.forms import LoginForm
 from twitter.models import RawTweet, Tweet
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+
+
+class UserTweetListView(ListView):
+    model = Tweet
+    template_name = "twitter/index.html"
+    context_object_name = "tweets"
+    paginate_by = 3
+
+    def get_queryset(self):
+        qs = Tweet.objects.filter(user_id=self.request.user.id).order_by("-p_date")
+        return qs
+
+    @method_decorator(login_required())
+    def dispatch(self, request, *args, **kwargs):
+        return super(UserTweetListView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UserTweetListView, self).get_context_data(**kwargs)
+        context['users'] = User.objects.all().values_list("id", "username")
+        return context
+
+
+class LoginView(FormView):
+    form_class = LoginForm
+    success_url = reverse_lazy("index")
+    template_name = "twitter/sign_in.html"
+
+    def form_valid(self, form):
+        user = authenticate(username=form.cleaned_data["username"], password=form.cleaned_data["password"])
+        if user:
+            login(self.request, user)
+            if self.request.GET.has_key("next"):
+                return redirect(self.request.GET["next"])
+            else:
+                return redirect(reverse_lazy('index'))
+        else:
+            return redirect(reverse_lazy('sign_in'))
 
 
 def no_auth_please(v):
@@ -22,7 +62,7 @@ def no_auth_please(v):
     return wrapper
 
 
-@login_required(login_url=reverse_lazy("sign_in"))
+@login_required
 def index(request):
     return render(request, "twitter/index.html",
                   {"user": request.user.username, "tweets": Tweet.objects.filter(user=request.user).order_by("-p_date")}
@@ -58,7 +98,7 @@ def sign_in(request):
         return render(request, "twitter/sign_in.html", context)
 
 
-@login_required(login_url=reverse_lazy("sign_in"))
+@login_required
 def q(request):
     return HttpResponse("CLASSIFIED")
 
@@ -68,4 +108,4 @@ def sign_out(request):
     logout(request)
     return HttpResponseRedirect(reverse("sign_in"))
 
-#  method CreateUser - creating new User object
+    # method CreateUser - creating new User object

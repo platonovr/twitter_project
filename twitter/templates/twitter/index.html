@@ -1,7 +1,7 @@
+{% load static %}
 <h1>Twitter Feed for user {{ user }}</h1>
 
 <p><a href="{% url 'sign_out' %}">Sign out</a></p>
-
 
 
 <p><a href="{% url 'analytics:index' %}">Home</a></p>
@@ -19,3 +19,9 @@
 {% else %}
     <p> Looser...tweet sth!</p>
 {% endif %}
+
+{% for u in users %}
+    <li>{{ u.0 }} : {{ u.1 }}</li>
+{% endfor %}
+
+<img src="{% static "twitter/img/i_001.png" %}"/>
