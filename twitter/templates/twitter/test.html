@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        .red {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<label>
+    <textarea id="mytextarea" oninput="mySuperFunction()"></textarea>
+
+    <div id="count">
+
+    </div>
+    <div id="error" class="red">
+
+    </div>
+    <input type="button" id="push" value="Push"/>
+</label>
+
+
+<script type="text/javascript">
+    var _length = 0;
+    var count = document.getElementById('count');
+    var textarea = document.getElementById('mytextarea');
+    var error = document.getElementById('error');
+    var pushButton = document.getElementById('push');
+    mySuperFunction = function () {
+        _length = textarea.value.length;
+        count.innerText = _length;
+        if (_length > 25) {
+            error.innerText = 'Слишком много символов';
+            pushButton.disabled = true;
+        }
+    };
+
+
+</script>
+
+</body>
+</html>

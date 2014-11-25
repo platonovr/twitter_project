@@ -7,8 +7,8 @@ from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, FormView
-from twitter.forms import LoginForm
-from twitter.models import RawTweet, Tweet
+from twitter.forms import LoginForm, AvatarForm
+from twitter.models import RawTweet, Tweet, Profile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -109,3 +109,26 @@ def sign_out(request):
     return HttpResponseRedirect(reverse("sign_in"))
 
     # method CreateUser - creating new User object
+
+@login_required
+def get_users(request):
+    result = ", ".join([u.username for u in User.objects.all()])
+    return HttpResponse(result)
+
+def edit_avatar(request):
+    p = Profile.objects.filter(user=request.user)
+    if request.method == 'POST':
+        if p.exists():
+            form = AvatarForm(request.POST, request.FILES, instance=p[0])
+        else:
+            form = AvatarForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.save()
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        if p.exists():
+            form = AvatarForm(instance=p[0])
+        else:
+            form = AvatarForm()
+        return render(request, "twitter/edit_avatar.html", {"form": form})

@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from twitter.views import UserTweetListView, LoginView
+from twitter_project import settings
 
 urlpatterns = patterns('twitter.views',
                        # Examples:
@@ -13,4 +14,11 @@ urlpatterns = patterns('twitter.views',
                        url(r'^q/$', 'q', name='q'),
                        url(r'^signout/', 'sign_out', name='sign_out'),
                        url(r'^analytics/', include('analytics.urls', namespace='analytics')),
+                       url(r'^edit/$', 'edit_avatar', name='edit_avatar'),
+                       url(r'^get_users/$', 'get_users', name='get_users'),
+)
+
+urlpatterns += patterns('',
+                        url(r'^media/(?P<path>.*)', 'django.views.static.serve',
+                            {'document_root': settings.MEDIA_ROOT}),
 )

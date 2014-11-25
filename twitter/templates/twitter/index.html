@@ -1,11 +1,19 @@
 {% load static %}
-<h1>Twitter Feed for user {{ user }}</h1>
+
+<link type="text/css" rel="stylesheet" href="{% static "twitter/bootstrap-3.2.0-dist/css/bootstrap.css" %}"
+<script type="javascript" src="{% static "twitter/jquery-2.1.1.js" %}"></script>
+<script type="text/javascript" src="{% static "twitter/main.js" %}"></script>
+<h1>Twitter Feed for user {{ user }} <img src={{ image.url }}/></h1>
 
 <p><a href="{% url 'sign_out' %}">Sign out</a></p>
 
+<p><a href="{% url 'get_users' %}" onclick="showusers();">Users</a></p>
+<p>
+<div id="showUsers"></div></p>
 
 <p><a href="{% url 'analytics:index' %}">Home</a></p>
-<form action="{% url 'process' %}" method='post'>
+
+<form class="form" action="{% url 'process' %}" method='post'>
     {% csrf_token %}
     <p><textarea name="tweet"></textarea></p>
 
