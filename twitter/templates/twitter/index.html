@@ -9,7 +9,7 @@
 
 <p><a href="{% url 'get_users' %}" onclick="showusers();">Users</a></p>
 <p>
-<div id="showUsers"></div></p>
+<div id="showUsers"></div>
 
 <p><a href="{% url 'analytics:index' %}">Home</a></p>
 
@@ -28,8 +28,10 @@
     <p> Looser...tweet sth!</p>
 {% endif %}
 
+{% comment %}
 {% for u in users %}
     <li>{{ u.0 }} : {{ u.1 }}</li>
 {% endfor %}
+{% endcomment %}
 
-<img src="{% static "twitter/img/i_001.png" %}"/>
+{#<img src="{% static "twitter/img/i_001.png" %}"/>#}
